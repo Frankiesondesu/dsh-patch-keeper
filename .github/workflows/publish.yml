@@ -65,11 +65,20 @@ jobs:
           fi
 
       - name: Publish to npm
+        id: publish
         if: steps.check.outputs.exists == 'false'
+        # 容忍发布失败（如尚未配置 NPM_TOKEN / OIDC）：不阻断后续 Release 创建
+        continue-on-error: true
         run: npm publish --access public --registry https://registry.npmjs.org --provenance=false
         env:
           # 可选：若在仓库设置了 NPM_TOKEN secret 则用它；未设置时自动走 OIDC
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Warn if npm publish failed
+        if: steps.check.outputs.exists == 'false' && steps.publish.outcome == 'failure'
+        run: |
+          echo "::warning::npm 发布失败——通常是没有配置 NPM_TOKEN secret，且 npm 账号未开启 trusted publishing。"
+          echo "::warning::本次 GitHub Release 仍会创建；配置好凭据后到 Actions 页面对本 run 执行 Re-run jobs 即可补发 npm 包。"
 
       # 生成 changelog：上个 v* tag 之后合入 main 的 PR（标题 + 编号），无 tag 则取全部
       - name: Build release changelog
