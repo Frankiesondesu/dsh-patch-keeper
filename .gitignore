@@ -1,0 +1,5 @@
+node_modules/
+*.tsbuildinfo
+*.tgz
+# 注意：lib/ 是手写维护的源码（无编译产物），必须入库，勿加入忽略
+

@@ -1,0 +1,2 @@
+# 统一 LF：scripts/build.sh 需在 bash 下运行，CRLF 会破坏 shebang 执行
+* text=auto eol=lf
