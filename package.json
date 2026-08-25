@@ -1,6 +1,6 @@
 {
-  "name": "@dsh-external/dsh-patch-keeper",
-  "version": "0.2.1",
+  "name": "dsh-patch-keeper",
+  "version": "0.2.2",
   "description": "补丁包管理（DSH 插件，hybrid）：把你在第三方插件/项目上的自定义修改提取为补丁包，官方更新时检测并提示，用 AI 把补丁合并到新版本（冲突自动交 AI 解决），再生成新补丁包。含 Web GUI 管理面板（设置「补丁包」分区，/patch-keeper/api）。纯 JS 零依赖。",
   "type": "module",
   "main": "./lib/main.js",
@@ -38,12 +38,12 @@
   "keywords": [
     "deepseek-harness",
     "dsh",
+    "dsh-plugin",
     "cordis",
     "plugin",
     "patch",
     "patch-keeper",
     "fork",
     "merge"
-  ],
-  "private": true
+  ]
 }

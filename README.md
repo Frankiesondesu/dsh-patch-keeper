@@ -1,4 +1,4 @@
-# @dsh-external/dsh-patch-keeper
+# dsh-patch-keeper
 
 **补丁包管家** —— 让你在第三方项目上的魔改，永远跟得上官方更新。
 
@@ -30,18 +30,53 @@
 
 ## 安装
 
-```bash
-# 方式一：注入器运行时注入（开发态，免重启）
-dev_inject_plugin {"dir": "<本目录>"}
+标准 DSH 插件包，可通过 `dsh plugin` 安装/卸载。`dsh plugin` 会把参数转发给 pnpm，
+并在成功后自动把 `dsh-patch-keeper` 加入对应 profile 的 `dsh.profile.bundles`
+（同时应用本包 `cordis.patch.yml` 的名册 insert 层——这是桌面壳的硬性要求）。
 
-# 方式二：官方 bundle 装配（生产态，重启生效）
-#   ① profile package.json dependencies 加 "link:<本目录>"
-#   ② dsh.profile.bundles 加 "@dsh-external/dsh-patch-keeper"
-#   ③ 建 node_modules junction
+### 方式 A：本地安装（从克隆的仓库）
+
+```bash
+dsh plugin --profile web add link:.
+# 或指定绝对路径
+dsh plugin --profile web add link:D:\你的路径\dsh-patch-keeper
 ```
 
-> 作为 profile bundle 装配时，package.json 的 `dsh.bundle.patch` 必须指向本目录的
-> `cordis.patch.yml`（内含把自己插入名册的 insert 行）——这是桌面壳的硬性要求。
+- 安装完成后重启该 profile（如 `dsh web`），浏览器 F5 刷新
+- **如果之后移动了源码目录**，必须重新执行一次 `dsh plugin --profile <name> add link:.<新路径>`；
+  若提示已存在/冲突，先 `dsh plugin --profile <name> remove dsh-patch-keeper` 再重新 add
+
+### 方式 B：npm 安装（已发布到 npm）
+
+```bash
+dsh plugin --profile web add dsh-patch-keeper
+```
+
+### 给 AI 的安装说明（用 dsh 辅助安装时，直接复制给 AI）
+
+```markdown
+请帮我安装插件 dsh-patch-keeper，来源是 GitHub 仓库 Frankiesondesu/dsh-patch-keeper。
+1. 确保 pnpm 可用（没有就先：npm install -g pnpm）
+2. 在目标 profile 安装（以 web 为例）：
+   dsh plugin --profile web add dsh-patch-keeper
+   如果要从本地克隆的仓库根目录链接安装，则用：
+   dsh plugin --profile web add link:.（在仓库目录内执行，或 link:<仓库绝对路径>）
+3. 验证：dsh --profile web --dump-config 应能看到 dsh-patch-keeper 在 bundles 里；
+   重启后 Web GUI「设置 → 🩹 补丁包」分区与 9 个 patch_* 工具出现即成功。
+```
+
+### 卸载 / 升级
+
+```bash
+dsh plugin --profile web remove dsh-patch-keeper   # 卸载
+dsh plugin --profile web update dsh-patch-keeper   # 更新到 npm 最新版
+```
+
+### 开发态（免重启注入）
+
+```bash
+dev_inject_plugin {"dir": "<本目录>"}
+```
 
 安装后即出现 9 个 `patch_*` 模型工具 + 设置面板分区 + `/patch-keeper/api` 路由。
 
@@ -165,9 +200,17 @@ GitHub 项目优先走 releases API（未认证限 60 次/时）；npm 项目走
 
 ## 版本历史
 
+- **0.2.2** 按官方插件发布规范整备：包名更名 `dsh-patch-keeper`（去除 `@dsh-external` 作用域）、
+  移除 `private` 支持 npm 发布、keywords 增加 `dsh-plugin`、新增 push 自动发布工作流；功能无变化
 - **0.2.1** `webServer` 改为 inject 硬依赖（修复启动时序竞争导致的 API 静默禁用）
 - **0.2.0** hybrid 化：Web GUI 设置面板 + `/patch-keeper/api` 任务队列路由；移除过时脚手架
 - **0.1.0** 初版：9 个 `patch_*` 工具 + 守护循环（host-only）
+
+## 发布流程（维护者）
+
+手动修改 `package.json` 的 `version` → push 到 main → `.github/workflows/publish.yml`
+自动执行：npm 未发布过该版本则 `npm publish`，并创建同名 `v<version>` GitHub Release
+（changelog 自动汇总上一 tag 之后合入的 PR）。幂等：重复 push 同一版本自动跳过。
 
 ## 许可
 

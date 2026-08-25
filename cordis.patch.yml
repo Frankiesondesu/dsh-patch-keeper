@@ -1,7 +1,8 @@
-# @dsh-external/dsh-patch-keeper bundle patch: inserts the patch-keeper
+# dsh-patch-keeper bundle patch: inserts the patch-keeper
 # plugin row into the profile roster. Applied as a profile bundle layer
 # (the `dsh.bundle.patch` manifest field) over dsh-base; activated via the
-# desktop profile `dsh.profile.bundles` list (local `link:` dependency).
+# profile `dsh.profile.bundles` list (installed via `dsh plugin --profile
+# <name> add dsh-patch-keeper`, or a local `link:` dependency).
 #
 # The row is a bare plugin by package name: the host half (exports ".")
 # registers patch_* tools, the daemon loop and /patch-keeper/api routes;
@@ -9,5 +10,5 @@
 # (exports "./client") load the「补丁包」view panel in the web GUI.
 - insert:
     - id: dsh-patch-keeper
-      name: '@dsh-external/dsh-patch-keeper'
+      name: 'dsh-patch-keeper'
       config: {}
