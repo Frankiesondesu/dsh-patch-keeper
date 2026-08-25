@@ -1,6 +1,9 @@
 name: Publish to npm
 
 # 事件驱动发布：main 分支有新提交即自动发布（不再需要外部定时轮询）
+# 认证方式：npm Trusted Publishing (OIDC) —— 无需任何 NPM_TOKEN。
+#   前提：在 npmjs.com 包设置页的 "Trusted publishing" 中绑定
+#   本仓库 + 本工作流文件名（publish.yml），并保持 id-token: write 权限。
 # 版本管理：不自动递增，发布版本号 = 当前 package.json 的 version 字段
 # 发版流程：手动修改 version → push → 本 workflow 自动发布并创建同名 GitHub Release
 # Release changelog：上一版本 tag（v*）到当前之间合入 main 的 PR 标题与编号；
@@ -67,18 +70,17 @@ jobs:
       - name: Publish to npm
         id: publish
         if: steps.check.outputs.exists == 'false'
-        # 容忍发布失败（如尚未配置 NPM_TOKEN / OIDC）：不阻断后续 Release 创建
+        # OIDC (Trusted Publishing) 认证，无 token；失败不阻断后续 Release 创建
         continue-on-error: true
-        run: npm publish --access public --registry https://registry.npmjs.org --provenance=false
-        env:
-          # 可选：若在仓库设置了 NPM_TOKEN secret 则用它；未设置时自动走 OIDC
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --registry https://registry.npmjs.org
 
       - name: Warn if npm publish failed
         if: steps.check.outputs.exists == 'false' && steps.publish.outcome == 'failure'
         run: |
-          echo "::warning::npm 发布失败——通常是没有配置 NPM_TOKEN secret，且 npm 账号未开启 trusted publishing。"
-          echo "::warning::本次 GitHub Release 仍会创建；配置好凭据后到 Actions 页面对本 run 执行 Re-run jobs 即可补发 npm 包。"
+          echo "::warning::npm publish failed via OIDC."
+          echo "::warning::Check that Trusted publishing is configured on npmjs.com for this package:"
+          echo "::warning::  repository=Frankiesondesu/dsh-patch-keeper, workflow filename=publish.yml"
+          echo "::warning::GitHub Release was still created; Re-run this job after fixing the config."
 
       # 生成 changelog：上个 v* tag 之后合入 main 的 PR（标题 + 编号），无 tag 则取全部
       - name: Build release changelog

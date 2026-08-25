@@ -200,6 +200,7 @@ GitHub 项目优先走 releases API（未认证限 60 次/时）；npm 项目走
 
 ## 版本历史
 
+- **0.2.3** 首个 CI 自动发布版本：npm Trusted Publishing（OIDC）零令牌发布 + 自动 provenance；功能无变化
 - **0.2.2** 按官方插件发布规范整备：包名更名 `dsh-patch-keeper`（去除 `@dsh-external` 作用域）、
   移除 `private` 支持 npm 发布、keywords 增加 `dsh-plugin`、新增 push 自动发布工作流；功能无变化
 - **0.2.1** `webServer` 改为 inject 硬依赖（修复启动时序竞争导致的 API 静默禁用）
